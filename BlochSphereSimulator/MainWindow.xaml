@@ -1,0 +1,199 @@
+﻿<Window x:Class="BlochSphereSimulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helix="http://helix-toolkit.org/wpf"
+        Title="Kvantum Bloch-gömb Szimulátor" Height="760" Width="1100"
+        ResizeMode="NoResize" Background="White"
+        FontFamily="Segoe UI" WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#F0F0F0"/>
+            <Setter Property="Foreground" Value="#111111"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="0" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E5E5E5"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#D4D4D4"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="0,4,0,12"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FBFBFB"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="0">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#2D2D2D"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                    <Setter Property="Background" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="GroupBox">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{TemplateBinding Header}" Grid.Row="0" Margin="4,0,0,8" 
+                                       FontWeight="SemiBold" FontSize="14" Foreground="#1A1A1A"/>
+                            <Border Grid.Row="1" Background="#F9F9F9" BorderBrush="#E5E5E5" 
+                                    BorderThickness="1" CornerRadius="0" Padding="15">
+                                <ContentPresenter/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="420"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- BAL OLDAL -->
+        <Grid Grid.Column="0" Background="#F3F3F3">
+            <helix:HelixViewport3D x:Name="MainViewport" ZoomExtentsWhenLoaded="True" 
+                                   ShowCoordinateSystem="False" ShowViewCube="False" ShowCameraTarget="False">
+                <helix:DefaultLights/>
+            </helix:HelixViewport3D>
+
+            <Canvas x:Name="LabelCanvas" IsHitTestVisible="False">
+                <TextBlock x:Name="LabelX" Text="X" Foreground="#FF6B6B" FontSize="26" FontWeight="Bold" Margin="-10,-15,0,0"/>
+                <TextBlock x:Name="LabelY" Text="Y" Foreground="#2ECC71" FontSize="26" FontWeight="Bold" Margin="-10,-15,0,0"/>
+                <TextBlock x:Name="LabelZ" Text="Z" Foreground="#54A0FF" FontSize="26" FontWeight="Bold" Margin="-10,-15,0,0"/>
+            </Canvas>
+
+            <Border HorizontalAlignment="Left" VerticalAlignment="Bottom" 
+                    Margin="20" Padding="15" Width="350"
+                    Background="#CCFFFFFF" BorderBrush="#AAAAAA" BorderThickness="1" >
+                <StackPanel>
+                    <TextBlock Text="Műveleti Láncolat" FontWeight="SemiBold" FontSize="14" Foreground="#111" Margin="0,0,0,8"/>
+
+                    <ScrollViewer Height="55" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
+                        <TextBlock Text="{Binding GateChain}" TextWrapping="Wrap" FontFamily="Consolas" Foreground="#333"/>
+                    </ScrollViewer>
+
+                    <Button Content="Tér Visszaállítása" Command="{Binding ClearCommand}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- JOBB OLDAL -->
+        <Border Grid.Column="1" Background="White" BorderThickness="0" Panel.ZIndex="1">
+            <StackPanel Margin="25">
+                <TextBlock Text="Bloch-gömb Szimulátor" FontSize="26" FontWeight="Bold" Foreground="#111111" Margin="0,0,0,25"/>
+
+                <GroupBox Header="1. Kezdőállapot beállítása">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Theta (θ) szög: " FontWeight="Normal" Foreground="#555555"/>
+                            <TextBlock Text="{Binding InputTheta, StringFormat={}{0:0}}" FontWeight="Bold" Foreground="#111111"/>
+                            <TextBlock Text="°" FontWeight="Normal" Foreground="#555555"/>
+                        </StackPanel>
+                        <Slider Minimum="0" Maximum="180" Value="{Binding InputTheta, UpdateSourceTrigger=PropertyChanged}" 
+                                TickFrequency="45" TickPlacement="BottomRight" IsSnapToTickEnabled="False" Margin="0,0,0,2"/>
+
+                        <Grid Margin="5,0,5,15">
+                            <TextBlock Text="0°" HorizontalAlignment="Left" FontSize="11" Foreground="#888"/>
+                            <TextBlock Text="90°" HorizontalAlignment="Center" FontSize="11" Foreground="#888"/>
+                            <TextBlock Text="180°" HorizontalAlignment="Right" FontSize="11" Foreground="#888"/>
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Phi (φ) szög: " FontWeight="Normal" Foreground="#555555"/>
+                            <TextBlock Text="{Binding InputPhi, StringFormat={}{0:0}}" FontWeight="Bold" Foreground="#111111"/>
+                            <TextBlock Text="°" FontWeight="Normal" Foreground="#555555"/>
+                        </StackPanel>
+                        <Slider Minimum="0" Maximum="360" Value="{Binding InputPhi, UpdateSourceTrigger=PropertyChanged}" 
+                                TickFrequency="45" TickPlacement="BottomRight" IsSnapToTickEnabled="False" Margin="0,0,0,2"/>
+
+                        <Grid Margin="5,0,5,5">
+                            <TextBlock Text="0°" HorizontalAlignment="Left" FontSize="11" Foreground="#888"/>
+                            <TextBlock Text="180°" HorizontalAlignment="Center" FontSize="11" Foreground="#888"/>
+                            <TextBlock Text="360°" HorizontalAlignment="Right" FontSize="11" Foreground="#888"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="2. Alapvető Kvantumkapuk">
+                    <UniformGrid Columns="2" Rows="2">
+                        <Button Content="Pauli - X" Command="{Binding ApplyGateCommand}" CommandParameter="X"/>
+                        <Button Content="Pauli - Y" Command="{Binding ApplyGateCommand}" CommandParameter="Y"/>
+                        <Button Content="Pauli - Z" Command="{Binding ApplyGateCommand}" CommandParameter="Z"/>
+                        <Button Content="Hadamard" Command="{Binding ApplyGateCommand}" CommandParameter="H"/>
+                    </UniformGrid>
+                </GroupBox>
+
+                <GroupBox Header="3. Egyedi Forgatási Kapuk">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Kapu szöge (fok): " FontWeight="Normal" Foreground="#555555"/>
+                            <TextBlock Text="{Binding InputRotationAngle, StringFormat={}{0:0}}" FontWeight="Bold" Foreground="#111111"/>
+                            <TextBlock Text="°" FontWeight="Normal" Foreground="#555555"/>
+                        </StackPanel>
+                        <Slider Minimum="0" Maximum="360" Value="{Binding InputRotationAngle, UpdateSourceTrigger=PropertyChanged}" 
+                                TickFrequency="45" TickPlacement="BottomRight" IsSnapToTickEnabled="False" Margin="0,0,0,2"/>
+
+                        <Grid Margin="5,0,5,15">
+                            <TextBlock Text="0°" HorizontalAlignment="Left" FontSize="11" Foreground="#888"/>
+                            <TextBlock Text="180°" HorizontalAlignment="Center" FontSize="11" Foreground="#888"/>
+                            <TextBlock Text="360°" HorizontalAlignment="Right" FontSize="11" Foreground="#888"/>
+                        </Grid>
+
+                        <!-- JAVÍTÁS: UniformGrid Columns="4", így mind a 4 egyedi kapu (Rx, Ry, Rz, P) kényelmesen elfér -->
+                        <UniformGrid Columns="4">
+                            <Button Content="Rx(θ)" Command="{Binding ApplyGateCommand}" CommandParameter="Rx"/>
+                            <Button Content="Ry(θ)" Command="{Binding ApplyGateCommand}" CommandParameter="Ry"/>
+                            <Button Content="Rz(θ)" Command="{Binding ApplyGateCommand}" CommandParameter="Rz"/>
+                            <Button Content="P(θ)"  Command="{Binding ApplyGateCommand}" CommandParameter="P"/>
+                        </UniformGrid>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
