@@ -123,12 +123,15 @@
         <!-- ===================== LEFT: 3D view + overlays ===================== -->
         <Grid Grid.Column="0" Background="#F3F3F3">
             <helix:HelixViewport3D x:Name="MainViewport" ZoomExtentsWhenLoaded="False"
-                                   ShowCoordinateSystem="False" ShowViewCube="True" ShowCameraTarget="False" IsHeadLightEnabled="True">
+                                   ShowCoordinateSystem="False" ShowViewCube="False" ShowCameraTarget="False" IsHeadLightEnabled="True">
                 <helix:HelixViewport3D.Camera>
                     <PerspectiveCamera Position="6.0,2.2,2.8" LookDirection="-6.0,-2.2,-2.8" UpDirection="0,0,1" FieldOfView="40"/>
                 </helix:HelixViewport3D.Camera>
                 <helix:DefaultLights/>
             </helix:HelixViewport3D>
+
+            <!-- 2D labels (axis names, step numbers, qubit names), positioned by projecting their 3D anchor points -->
+            <Canvas x:Name="LabelCanvas" IsHitTestVisible="False" ClipToBounds="True"/>
 
             <!-- Live state readout -->
             <Border Style="{StaticResource Overlay}" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="380">

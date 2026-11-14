@@ -313,14 +313,14 @@ p("A felület két részből áll. A bal oldalon a 3D nézet van két átlátsz�
   "vezérlőcsoport van, felülről lefelé a használat sorrendjében.")
 
 doc.add_heading("5.1 A 3D nézet", level=2)
-bullet("Forgatás: bal egérgomb lenyomva tartva és húzva. Mozgatás: jobb egérgomb. Nagyítás: egérgörgő. A jobb alsó "
-       "sarokban lévő nézetkocka oldalaira kattintva a nézet a tengelyek irányába fordul. A „Nézet alaphelyzetbe” "
-       "gomb visszaállítja a kezdeti kameraállást.")
+bullet("Forgatás: bal egérgomb lenyomva tartva és húzva. Mozgatás: jobb egérgomb. Nagyítás: egérgörgő. A „Nézet "
+       "alaphelyzetbe” gomb visszaállítja a kezdeti kameraállást.")
 bullet("A tengelyek: x (piros, |+⟩), y (zöld, |+j⟩), z (kék, |0⟩). Az ellentétes oldalon |−⟩, |−j⟩ és |1⟩ látható. "
        "Az egyenlítő sötétebb vonallal van kiemelve.")
 bullet("Az aktuális állapot vastag, a qubit színével megegyező nyíl. A korábbi állapotok vékonyabb, halványabb "
        "nyilak; minél régebbi egy állapot, annál halványabb. A kiválasztott qubitnél a nyílvégeken lévő sorszám "
-       "mutatja a lépések sorrendjét (0 = kezdőállapot).")
+       "mutatja a lépések sorrendjét (0 = kezdőállapot). Ha több lépés ugyanabba a pontba vezet, közös "
+       "címkét kapnak (pl. „0, 4”). A címkék mindig közvetlenül a nyílhegy mögött, a nyíl irányában jelennek meg.")
 bullet("A pályák azt mutatják, merre mozdult a vektor egy kapu hatására. Kapunál ez egy körív a forgástengely "
        "körül, mérésnél szaggatott egyenes, mert a mérés nem unitér, hanem „ugrás”.")
 

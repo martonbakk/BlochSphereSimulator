@@ -36,7 +36,7 @@ Házi feladat a **Kvantuminformatikai alkalmazások** (BMEVIHIAD00) tárgyhoz, 2
   összeomlásával. Ismételt mérés (100 / 1000 / 10000 „shot”) hisztogrammal és az elméleti értékkel.
 - **Több qubit:** legfeljebb 6 független qubit egyszerre, mindegyik saját színnel, lánccal és előzménnyel.
 - **Kényelmi funkciók:** átméretezhető ablak, magyarázó buborékok a kapukon (mátrix + geometriai jelentés),
-  nézetkocka, kamera alaphelyzetbe állítása.
+  kamera alaphelyzetbe állítása.
 
 | Állapot-előállítás az előadás áramkörével | Mérés hisztogrammal |
 |---|---|
