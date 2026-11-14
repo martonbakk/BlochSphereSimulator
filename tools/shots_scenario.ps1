@@ -7,11 +7,13 @@ if ($env:SHOTS_DIR) { $img = $env:SHOTS_DIR }   # e.g. to smoke-test a published
 # 1) Start screen
 Save-Shot "$img\01_start.png"
 
-# 2) Preparation demo: target theta=60, phi=120
+# 2) Initial state typed in (theta=60, phi=120), then a short gate chain
 Set-UiValue 0 "60"
 Set-UiValue 1 "120"
-Invoke-Ui "▶ Előállítás lépésenként" 6500
-Save-Shot "$img\02_preparation_demo.png"
+Invoke-Ui "H"
+Invoke-Ui "S"
+Invoke-Ui "Ry(α)"
+Save-Shot "$img\02_typed_state.png"
 
 # 3) Mid-animation frame of a Hadamard gate (shows the rotation axis)
 Invoke-Ui "|0⟩" 400

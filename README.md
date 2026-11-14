@@ -29,18 +29,17 @@ Házi feladat a **Kvantuminformatikai alkalmazások** (BMEVIHIAD00) tárgyhoz, 2
   visszavonás (Ctrl+Z), lánc törlése.
 - **Élő állapotkijelző:** |ψ⟩ képlet, α és β j-s alakban, θ, φ, Bloch-koordináták (x, y, z), P(0) = |α|²,
   P(1) = |β|² sávdiagrammal, X-bázisú valószínűségek.
-- **Tetszőleges kezdőállapot:** θ, φ csúszkával vagy pontos számértékkel, hat nevezetes állapot
-  (|0⟩, |1⟩, |+⟩, |−⟩, |+j⟩, |−j⟩), és az előadás állapot-előállító áramköre lépésenként:
-  |0⟩ → H → P(α) → H → P(90°+β), ahol a szögek a beállított θ, φ értékből számolódnak (a panel a konkrét áramkört is kiírja).
+- **Tetszőleges kezdőállapot:** θ, φ csúszkával vagy pontos (tizedes) számértékkel, illetve hat nevezetes
+  állapot gombjával (|0⟩, |1⟩, |+⟩, |−⟩, |+j⟩, |−j⟩).
 - **Mérés (3. posztulátum):** projektív mérés Z-bázisban {|0⟩, |1⟩} és X-bázisban {|+⟩, |−⟩}, az állapot
   összeomlásával. Ismételt mérés (100 / 1000 / 10000 „shot”) hisztogrammal és az elméleti értékkel.
 - **Több qubit:** legfeljebb 6 független qubit egyszerre, mindegyik saját színnel, lánccal és előzménnyel.
 - **Kényelmi funkciók:** átméretezhető ablak, magyarázó buborékok a kapukon (mátrix + geometriai jelentés),
   kamera alaphelyzetbe állítása.
 
-| Állapot-előállítás az előadás áramkörével | Mérés hisztogrammal |
+| Kezdőállapot számmal és kapulánc | Mérés hisztogrammal |
 |---|---|
-| ![Állapot-előállítás](docs/img/02_preparation_demo.png) | ![Mérés](docs/img/05_shots.png) |
+| ![Kapulánc](docs/img/02_typed_state.png) | ![Mérés](docs/img/05_shots.png) |
 
 ## Gyors kezdés
 
@@ -63,7 +62,6 @@ Házi feladat a **Kvantuminformatikai alkalmazások** (BMEVIHIAD00) tárgyhoz, 2
 | Mérni | „Mérés Z-bázisban” / „Mérés X-bázisban” |
 | Statisztikát nézni | mérésszám + bázis → „Futtatás” |
 | Több qubitet összehasonlítani | „+ Új qubit”, majd a listában kiválasztani, melyikre hassanak a kapuk |
-| Az előadás áramkörét megnézni | θ, φ beállítása → „▶ Előállítás lépésenként” |
 
 **Példa – kvantuminterferométer (előadás):** |0⟩ → H → P(Δα) → H, majd 10000 mérés Z-bázisban.
 Az eredmény P(0) = cos²(Δα/2); például Δα = 60° esetén kb. 75% lesz 0.
@@ -92,7 +90,6 @@ A program az előadásfóliák jelöléseit követi:
 - Bloch-vektor: x = 2·Re(α\*β), y = 2·Im(α\*β), z = |α|² − |β|²; |0⟩ = +z, |1⟩ = −z, |±⟩ = ±x, |±j⟩ = ±y
 - a kijelzett α, β a globális fázis elhagyásával jelenik meg (α valós, nemnegatív)
 - mérés: P(m) = ⟨ψ|Pₘ|ψ⟩, a mérés utáni állapot Pₘ|ψ⟩ / √P(m)
-- tetszőleges állapot előállítása: P(90°+β)·H·P(α)·H|0⟩ = e^(jα/2)[cos(α/2)|0⟩ + e^(jβ)sin(α/2)|1⟩]
 
 Részletesen: [docs/BlochSphereSimulator_dokumentacio.pdf](docs/BlochSphereSimulator_dokumentacio.pdf), 4. fejezet.
 
@@ -141,11 +138,11 @@ BlochSphereSimulator/
 
 ## Tesztek
 
-38 unit teszt (`dotnet test`), többek között:
+35 unit teszt (`dotnet test`), többek között:
 
 - minden kapu unitér; H² = I, S = T², Z = S², √X² = X; a fóliákon szereplő Y, Z, P(α), H hatások
 - az animációs pálya végpontja minden kapura megegyezik U|ψ⟩ Bloch-pontjával (13 kapu × 50 véletlen állapot)
-- az előadás állapot-előállító áramköre és interferométere a várt állapotot, illetve statisztikát adja
+- az előadás „tetszőleges állapot előállítása” levezetése és az interferométer a várt állapotot, illetve statisztikát adja
 - mérés: Born-szabály, összeomlás, ismételt mérés ugyanazt adja, 100 000 mérés 1%-on belül
 - felületlogika: lánc, visszavonás, csúszkák, nevezetes állapotok, mérés, hisztogram, több qubit
 
@@ -177,6 +174,5 @@ BlochSphereSimulator/
 
 An interactive 3D Bloch sphere simulator (C#, WPF, .NET 8) for a university homework in quantum information.
 It offers 13 single-qubit gates with animated rotations, gate chains with numbered history and undo, a live
-state readout, any initial state (sliders, number input, presets, and the lecture's H–P(α)–H–P(90°+β)
-preparation circuit), projective measurement in the Z and X bases with a shot histogram, and up to six
-independent qubits. Run `publish.cmd` to build a 43 MB self-contained executable; `dotnet test` runs 38 unit tests.
+state readout, any initial state (sliders, number input, presets), projective measurement in the Z and X bases with a shot histogram, and up to six
+independent qubits. Run `publish.cmd` to build a 43 MB self-contained executable; `dotnet test` runs 35 unit tests.
