@@ -31,7 +31,7 @@ Házi feladat a **Kvantuminformatikai alkalmazások** (BMEVIHIAD00) tárgyhoz, 2
   P(1) = |β|² sávdiagrammal, X-bázisú valószínűségek.
 - **Tetszőleges kezdőállapot:** θ, φ csúszkával vagy pontos számértékkel, hat nevezetes állapot
   (|0⟩, |1⟩, |+⟩, |−⟩, |+j⟩, |−j⟩), és az előadás állapot-előállító áramköre lépésenként:
-  |0⟩ → H → P(α) → H → P(90°+β).
+  |0⟩ → H → P(α) → H → P(90°+β), ahol a szögek a beállított θ, φ értékből számolódnak (a panel a konkrét áramkört is kiírja).
 - **Mérés (3. posztulátum):** projektív mérés Z-bázisban {|0⟩, |1⟩} és X-bázisban {|+⟩, |−⟩}, az állapot
   összeomlásával. Ismételt mérés (100 / 1000 / 10000 „shot”) hisztogrammal és az elméleti értékkel.
 - **Több qubit:** legfeljebb 6 független qubit egyszerre, mindegyik saját színnel, lánccal és előzménnyel.
@@ -141,7 +141,7 @@ BlochSphereSimulator/
 
 ## Tesztek
 
-36 unit teszt (`dotnet test`), többek között:
+38 unit teszt (`dotnet test`), többek között:
 
 - minden kapu unitér; H² = I, S = T², Z = S², √X² = X; a fóliákon szereplő Y, Z, P(α), H hatások
 - az animációs pálya végpontja minden kapura megegyezik U|ψ⟩ Bloch-pontjával (13 kapu × 50 véletlen állapot)
@@ -179,4 +179,4 @@ An interactive 3D Bloch sphere simulator (C#, WPF, .NET 8) for a university home
 It offers 13 single-qubit gates with animated rotations, gate chains with numbered history and undo, a live
 state readout, any initial state (sliders, number input, presets, and the lecture's H–P(α)–H–P(90°+β)
 preparation circuit), projective measurement in the Z and X bases with a shot histogram, and up to six
-independent qubits. Run `publish.cmd` to build a 43 MB self-contained executable; `dotnet test` runs 36 unit tests.
+independent qubits. Run `publish.cmd` to build a 43 MB self-contained executable; `dotnet test` runs 38 unit tests.

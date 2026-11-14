@@ -291,7 +291,10 @@
                                 <StackPanel>
                                     <TextBlock Text="Tetszőleges állapot előállítása alapkapukkal (előadás)" FontWeight="SemiBold"/>
                                     <TextBlock Style="{StaticResource Caption}" Margin="0,2,0,6"
-                                               Text="|0⟩ → H → P(α) → H → P(90°+β) = e^(jα/2)[cos(α/2)|0⟩ + e^(jβ)sin(α/2)|1⟩]. A cél: α = θ, β = φ a fenti csúszkákról."/>
+                                               Text="Általánosan: |0⟩ → H → P(α) → H → P(90°+β) = e^(jα/2)[cos(α/2)|0⟩ + e^(jβ)sin(α/2)|1⟩], ahol α = θ és β = φ a fenti beállításból."/>
+                                    <TextBlock Text="A lejátszandó áramkör:" Foreground="#555" FontSize="11.5"/>
+                                    <TextBlock Text="{Binding PreparationCircuitText}" FontFamily="Consolas" FontSize="13" FontWeight="SemiBold" Foreground="#1A1A1A" Margin="0,1,0,2"/>
+                                    <TextBlock Text="{Binding PreparationTargetText}" Style="{StaticResource Caption}" Margin="0,0,0,6"/>
                                     <Button Content="▶ Előállítás lépésenként" Command="{Binding PreparationDemoCommand}"/>
                                 </StackPanel>
                             </Border>

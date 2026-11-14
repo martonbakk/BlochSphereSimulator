@@ -338,8 +338,10 @@ bullet("Amíg a qubitre még nem hatott kapu, a csúszkák élőben mozgatják a
        "gombbal indítható.")
 bullet("Nevezetes állapotok gombjai: |0⟩, |1⟩, |+⟩, |−⟩, |+j⟩, |−j⟩. Egy kattintással beállítják a szögeket és "
        "újraindítják a qubitet a választott állapotból.")
-bullet("„Előállítás lépésenként”: az előadás áramköre (4.3 fejezet) animálva. A cél a θ, φ csúszkákon beállított "
-       "állapot. Lejátszás közben a többi gomb le van tiltva.")
+bullet("„Előállítás lépésenként”: az előadás áramköre (4.3 fejezet) animálva. Az áramkör nem rögzített: a "
+       "kapuk szögei a θ, φ beállításból számolódnak (α = θ, az utolsó kapu P(90° + φ), 360°-ra redukálva), és a panel "
+       "élőben kiírja a konkrét áramkört és a célállapotot, pl. θ = 60°, φ = 120° esetén "
+       "|0⟩ → H → P(60°) → H → P(210°). Lejátszás közben a többi gomb le van tiltva.")
 figure("02_preparation_demo.png", "2. ábra – Az előadás állapot-előállító áramköre (cél: θ = 60°, φ = 120°): a 0–4 sorszámú lépések és pályáik", 15.0)
 
 doc.add_heading("5.4 Kapuk alkalmazása és láncolása", level=2)
@@ -441,7 +443,7 @@ table(
                                "sorszámok; az animáció képkockánként (CompositionTarget.Rendering), ease-in-out "
                                "időzítéssel."],
         ["Commands/RelayCommand.cs", "Általános ICommand megvalósítás a gombokhoz."],
-        ["BlochSphereSimulator.Tests/", "36 unit teszt (QuantumMathTests, MainViewModelTests)."],
+        ["BlochSphereSimulator.Tests/", "38 unit teszt (QuantumMathTests, MainViewModelTests)."],
         ["tools/", "A dokumentáció és a képernyőképek reprodukálható előállítása (UI Automation szkript, DOCX generátor)."],
     ],
     widths=[5.0, 11.4],
@@ -460,7 +462,7 @@ p("Az új lépés bekerül a qubit előzményei közé, a nézet pedig végigvez
 # 8. Testing
 # =====================================================================
 doc.add_heading("8. Tesztelés és ellenőrzés", level=1)
-p("A megoldás 36 automatikus unit tesztet tartalmaz (dotnet test), mindegyik sikeresen lefut. Főbb csoportok:")
+p("A megoldás 38 automatikus unit tesztet tartalmaz (dotnet test), mindegyik sikeresen lefut. Főbb csoportok:")
 bullet("Kapuk: unitaritás mind a 13 kapura; H² = I, S = P(90°), T = P(45°), T² = S, S² = Z, SS† = TT† = I, "
        "√X² = X; a fóliákon szereplő Y, Z, P(α) hatás általános állapotra.", "Mátrixok – ")
 bullet("H|0⟩ = |+⟩ (+x), X|0⟩ = |1⟩ (−z), P(90°)|+⟩ = |+j⟩ (+y); a 6 nevezetes állapot Bloch-pontja; "
