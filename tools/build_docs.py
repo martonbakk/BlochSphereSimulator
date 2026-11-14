@@ -313,14 +313,14 @@ p("A felület két részből áll. A bal oldalon a 3D nézet van két átlátsz�
   "vezérlőcsoport van, felülről lefelé a használat sorrendjében.")
 
 doc.add_heading("5.1 A 3D nézet", level=2)
-bullet("Forgatás: bal egérgomb lenyomva tartva és húzva. Mozgatás: jobb egérgomb. Nagyítás: egérgörgő. A jobb alsó "
-       "sarokban lévő nézetkocka oldalaira kattintva a nézet a tengelyek irányába fordul. A „Nézet alaphelyzetbe” "
-       "gomb visszaállítja a kezdeti kameraállást.")
+bullet("Forgatás: bal egérgomb lenyomva tartva és húzva. Mozgatás: jobb egérgomb. Nagyítás: egérgörgő. A „Nézet "
+       "alaphelyzetbe” gomb visszaállítja a kezdeti kameraállást.")
 bullet("A tengelyek: x (piros, |+⟩), y (zöld, |+j⟩), z (kék, |0⟩). Az ellentétes oldalon |−⟩, |−j⟩ és |1⟩ látható. "
        "Az egyenlítő sötétebb vonallal van kiemelve.")
 bullet("Az aktuális állapot vastag, a qubit színével megegyező nyíl. A korábbi állapotok vékonyabb, halványabb "
        "nyilak; minél régebbi egy állapot, annál halványabb. A kiválasztott qubitnél a nyílvégeken lévő sorszám "
-       "mutatja a lépések sorrendjét (0 = kezdőállapot).")
+       "mutatja a lépések sorrendjét (0 = kezdőállapot). Ha több lépés ugyanabba a pontba vezet, közös "
+       "címkét kapnak (pl. „0, 4”). A címkék mindig közvetlenül a nyílhegy mögött, a nyíl irányában jelennek meg.")
 bullet("A pályák azt mutatják, merre mozdult a vektor egy kapu hatására. Kapunál ez egy körív a forgástengely "
        "körül, mérésnél szaggatott egyenes, mert a mérés nem unitér, hanem „ugrás”.")
 
@@ -338,8 +338,10 @@ bullet("Amíg a qubitre még nem hatott kapu, a csúszkák élőben mozgatják a
        "gombbal indítható.")
 bullet("Nevezetes állapotok gombjai: |0⟩, |1⟩, |+⟩, |−⟩, |+j⟩, |−j⟩. Egy kattintással beállítják a szögeket és "
        "újraindítják a qubitet a választott állapotból.")
-bullet("„Előállítás lépésenként”: az előadás áramköre (4.3 fejezet) animálva. A cél a θ, φ csúszkákon beállított "
-       "állapot. Lejátszás közben a többi gomb le van tiltva.")
+bullet("„Előállítás lépésenként”: az előadás áramköre (4.3 fejezet) animálva. Az áramkör nem rögzített: a "
+       "kapuk szögei a θ, φ beállításból számolódnak (α = θ, az utolsó kapu P(90° + φ), 360°-ra redukálva), és a panel "
+       "élőben kiírja a konkrét áramkört és a célállapotot, pl. θ = 60°, φ = 120° esetén "
+       "|0⟩ → H → P(60°) → H → P(210°). Lejátszás közben a többi gomb le van tiltva.")
 figure("02_preparation_demo.png", "2. ábra – Az előadás állapot-előállító áramköre (cél: θ = 60°, φ = 120°): a 0–4 sorszámú lépések és pályáik", 15.0)
 
 doc.add_heading("5.4 Kapuk alkalmazása és láncolása", level=2)
@@ -441,7 +443,7 @@ table(
                                "sorszámok; az animáció képkockánként (CompositionTarget.Rendering), ease-in-out "
                                "időzítéssel."],
         ["Commands/RelayCommand.cs", "Általános ICommand megvalósítás a gombokhoz."],
-        ["BlochSphereSimulator.Tests/", "36 unit teszt (QuantumMathTests, MainViewModelTests)."],
+        ["BlochSphereSimulator.Tests/", "38 unit teszt (QuantumMathTests, MainViewModelTests)."],
         ["tools/", "A dokumentáció és a képernyőképek reprodukálható előállítása (UI Automation szkript, DOCX generátor)."],
     ],
     widths=[5.0, 11.4],
@@ -460,7 +462,7 @@ p("Az új lépés bekerül a qubit előzményei közé, a nézet pedig végigvez
 # 8. Testing
 # =====================================================================
 doc.add_heading("8. Tesztelés és ellenőrzés", level=1)
-p("A megoldás 36 automatikus unit tesztet tartalmaz (dotnet test), mindegyik sikeresen lefut. Főbb csoportok:")
+p("A megoldás 38 automatikus unit tesztet tartalmaz (dotnet test), mindegyik sikeresen lefut. Főbb csoportok:")
 bullet("Kapuk: unitaritás mind a 13 kapura; H² = I, S = P(90°), T = P(45°), T² = S, S² = Z, SS† = TT† = I, "
        "√X² = X; a fóliákon szereplő Y, Z, P(α) hatás általános állapotra.", "Mátrixok – ")
 bullet("H|0⟩ = |+⟩ (+x), X|0⟩ = |1⟩ (−z), P(90°)|+⟩ = |+j⟩ (+y); a 6 nevezetes állapot Bloch-pontja; "

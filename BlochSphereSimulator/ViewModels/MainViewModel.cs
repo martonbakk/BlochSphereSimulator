@@ -144,6 +144,8 @@ namespace BlochSphereSimulator.ViewModels
         /// </summary>
         private void OnInputAnglesChanged()
         {
+            OnPropertyChanged(nameof(PreparationCircuitText));
+            OnPropertyChanged(nameof(PreparationTargetText));
             if (SelectedQubit == null) return;
             if (!SelectedQubit.CanUndo)
             {
@@ -230,6 +232,8 @@ namespace BlochSphereSimulator.ViewModels
             _inputPhi = angles.Phi;
             OnPropertyChanged(nameof(InputTheta));
             OnPropertyChanged(nameof(InputPhi));
+            OnPropertyChanged(nameof(PreparationCircuitText));
+            OnPropertyChanged(nameof(PreparationTargetText));
             SelectedQubit.Restart(QuantumMath.GetStateVector(angles.Theta, angles.Phi), $"Init({name})");
             InputHint = "";
             LastMeasurementText = "";
@@ -319,6 +323,18 @@ namespace BlochSphereSimulator.ViewModels
         /// gives e^(jα/2)[cos(α/2)|0⟩ + e^(jβ) sin(α/2)|1⟩], i.e. the Bloch point (θ=α, φ=β).
         /// The target is taken from the θ/φ inputs.
         /// </summary>
+        /// <summary>Angle of the last gate, P(90° + β), reduced to [0°, 360°) (P is 360°-periodic).</summary>
+        public static double PreparationSecondPhase(double betaDeg) => ((90 + betaDeg) % 360 + 360) % 360;
+
+        /// <summary>The concrete circuit the demo will play for the current θ, φ inputs.</summary>
+        public string PreparationCircuitText =>
+            $"|0⟩ → H → P({InputTheta.ToString("0.##", Inv)}°) → H → P({PreparationSecondPhase(InputPhi).ToString("0.##", Inv)}°)";
+
+        /// <summary>The state the demo ends in (up to the global phase e^(jα/2)).</summary>
+        public string PreparationTargetText =>
+            $"Cél: θ = {InputTheta.ToString("0.##", Inv)}°, φ = {InputPhi.ToString("0.##", Inv)}°  →  " +
+            $"cos({(InputTheta / 2).ToString("0.##", Inv)}°)|0⟩ + e^(j·{InputPhi.ToString("0.##", Inv)}°)·sin({(InputTheta / 2).ToString("0.##", Inv)}°)|1⟩";
+
         public async Task RunPreparationDemoAsync(int? stepDelayMs = null)
         {
             if (SelectedQubit == null || IsBusy) return;
@@ -327,6 +343,7 @@ namespace BlochSphereSimulator.ViewModels
             {
                 double alpha = InputTheta;
                 double beta = InputPhi;
+                double secondPhase = PreparationSecondPhase(beta);
                 int delay = stepDelayMs ?? (AnimationEnabled ? (int)(AnimationSeconds * 1000) + 250 : 300);
 
                 SelectedQubit.Restart(QuantumMath.GetStateVector(0, 0), $"Init(|0⟩) [cél: θ={alpha.ToString("0.#", Inv)}°, φ={beta.ToString("0.#", Inv)}°]");
@@ -340,7 +357,7 @@ namespace BlochSphereSimulator.ViewModels
                     QuantumMath.GetGate("H", 0),
                     QuantumMath.GetGate("P", alpha),
                     QuantumMath.GetGate("H", 0),
-                    QuantumMath.GetGate("P", 90 + beta),
+                    QuantumMath.GetGate("P", secondPhase),
                 };
                 foreach (var gate in sequence)
                 {

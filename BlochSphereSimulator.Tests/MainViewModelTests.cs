@@ -206,6 +206,50 @@ namespace BlochSphereSimulator.Tests
         }
     }
 
+    [TestClass]
+    public class PreparationDemoTests
+    {
+        [TestMethod]
+        public void CircuitText_FollowsInputs()
+        {
+            var vm = new MainViewModel(new Random(1));
+            vm.InputTheta = 60;
+            vm.InputPhi = 120;
+            Assert.AreEqual("|0⟩ → H → P(60°) → H → P(210°)", vm.PreparationCircuitText);
+            StringAssert.Contains(vm.PreparationTargetText, "θ = 60°, φ = 120°");
+
+            vm.InputTheta = 135;
+            vm.InputPhi = 300; // 90 + 300 = 390 -> 30
+            Assert.AreEqual("|0⟩ → H → P(135°) → H → P(30°)", vm.PreparationCircuitText);
+
+            vm.PresetCommand.Execute("|−j⟩");
+            Assert.AreEqual("|0⟩ → H → P(90°) → H → P(0°)", vm.PreparationCircuitText);
+        }
+
+        [TestMethod]
+        public async Task Demo_ReachesTarget_ForManyInputs_IncludingWrapAround()
+        {
+            var rng = new Random(3);
+            for (int i = 0; i < 25; i++)
+            {
+                var vm = new MainViewModel(new Random(1));
+                double theta = Math.Round(rng.NextDouble() * 180, 2), phi = Math.Round(rng.NextDouble() * 360, 2);
+                if (i == 0) { theta = 135; phi = 300; } // wrap-around case
+                vm.InputTheta = theta;
+                vm.InputPhi = phi;
+                await vm.RunPreparationDemoAsync(0);
+
+                var expected = QuantumMath.GetBlochCoordinates(QuantumMath.GetStateVector(theta, phi));
+                var actual = vm.SelectedQubit!.Current.Bloch;
+                Assert.AreEqual(expected.X, actual.X, 1e-9, $"θ={theta} φ={phi}");
+                Assert.AreEqual(expected.Y, actual.Y, 1e-9, $"θ={theta} φ={phi}");
+                Assert.AreEqual(expected.Z, actual.Z, 1e-9, $"θ={theta} φ={phi}");
+                Assert.AreEqual($"P({MainViewModel.PreparationSecondPhase(phi).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)}°)",
+                                vm.SelectedQubit.Current.Label);
+            }
+        }
+    }
+
     internal static class MainViewModelTestExtensions
     {
         public static void ApplyPresetForTest(this MainViewModel vm, string name) => vm.PresetCommand.Execute(name);
