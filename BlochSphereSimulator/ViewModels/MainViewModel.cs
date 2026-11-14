@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -42,16 +41,15 @@ namespace BlochSphereSimulator.ViewModels
         {
             _rng = rng;
 
-            ApplyGateCommand = new RelayCommand(p => ApplyGate(p?.ToString()), _ => !IsBusy);
-            SetInitStateCommand = new RelayCommand(_ => RestartSelectedFromInputs(), _ => !IsBusy);
-            PresetCommand = new RelayCommand(p => ApplyPreset(p?.ToString()), _ => !IsBusy);
-            UndoCommand = new RelayCommand(_ => Undo(), _ => !IsBusy && SelectedQubit?.CanUndo == true);
-            ClearCommand = new RelayCommand(_ => ClearChain(), _ => !IsBusy);
-            MeasureCommand = new RelayCommand(p => Measure(p?.ToString() == "X" ? MeasurementBasis.X : MeasurementBasis.Z), _ => !IsBusy);
-            RunShotsCommand = new RelayCommand(_ => RunShots(), _ => !IsBusy);
-            AddQubitCommand = new RelayCommand(_ => AddQubit(), _ => !IsBusy && Qubits.Count < MaxQubits);
-            RemoveQubitCommand = new RelayCommand(_ => RemoveSelectedQubit(), _ => !IsBusy && Qubits.Count > 1);
-            PreparationDemoCommand = new RelayCommand(async _ => await RunPreparationDemoAsync(), _ => !IsBusy);
+            ApplyGateCommand = new RelayCommand(p => ApplyGate(p?.ToString()));
+            SetInitStateCommand = new RelayCommand(_ => RestartSelectedFromInputs());
+            PresetCommand = new RelayCommand(p => ApplyPreset(p?.ToString()));
+            UndoCommand = new RelayCommand(_ => Undo(), _ => SelectedQubit?.CanUndo == true);
+            ClearCommand = new RelayCommand(_ => ClearChain());
+            MeasureCommand = new RelayCommand(p => Measure(p?.ToString() == "X" ? MeasurementBasis.X : MeasurementBasis.Z));
+            RunShotsCommand = new RelayCommand(_ => RunShots());
+            AddQubitCommand = new RelayCommand(_ => AddQubit(), _ => Qubits.Count < MaxQubits);
+            RemoveQubitCommand = new RelayCommand(_ => RemoveSelectedQubit(), _ => Qubits.Count > 1);
 
             AddQubit();
         }
@@ -144,8 +142,6 @@ namespace BlochSphereSimulator.ViewModels
         /// </summary>
         private void OnInputAnglesChanged()
         {
-            OnPropertyChanged(nameof(PreparationCircuitText));
-            OnPropertyChanged(nameof(PreparationTargetText));
             if (SelectedQubit == null) return;
             if (!SelectedQubit.CanUndo)
             {
@@ -188,14 +184,6 @@ namespace BlochSphereSimulator.ViewModels
             set { _showPaths = value; OnPropertyChanged(); SceneChanged?.Invoke(this, EventArgs.Empty); }
         }
 
-        private bool _isBusy;
-        /// <summary>True while the state-preparation demo runs; disables the other commands.</summary>
-        public bool IsBusy
-        {
-            get => _isBusy;
-            private set { _isBusy = value; OnPropertyChanged(); CommandManager.InvalidateRequerySuggested(); }
-        }
-
         // ================= Commands =================
 
         public ICommand ApplyGateCommand { get; }
@@ -207,7 +195,6 @@ namespace BlochSphereSimulator.ViewModels
         public ICommand RunShotsCommand { get; }
         public ICommand AddQubitCommand { get; }
         public ICommand RemoveQubitCommand { get; }
-        public ICommand PreparationDemoCommand { get; }
 
         public IReadOnlyList<string> PresetNames { get; } = QuantumMath.Presets.Keys.ToList();
 
@@ -232,8 +219,6 @@ namespace BlochSphereSimulator.ViewModels
             _inputPhi = angles.Phi;
             OnPropertyChanged(nameof(InputTheta));
             OnPropertyChanged(nameof(InputPhi));
-            OnPropertyChanged(nameof(PreparationCircuitText));
-            OnPropertyChanged(nameof(PreparationTargetText));
             SelectedQubit.Restart(QuantumMath.GetStateVector(angles.Theta, angles.Phi), $"Init({name})");
             InputHint = "";
             LastMeasurementText = "";
@@ -316,59 +301,6 @@ namespace BlochSphereSimulator.ViewModels
             toRemove.PropertyChanged -= OnSelectedQubitChanged;
             Qubits.Remove(toRemove);
             SceneChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Lecture "preparing an arbitrary quantum state": |0⟩ → H → P(α) → H → P(90°+β)
-        /// gives e^(jα/2)[cos(α/2)|0⟩ + e^(jβ) sin(α/2)|1⟩], i.e. the Bloch point (θ=α, φ=β).
-        /// The target is taken from the θ/φ inputs.
-        /// </summary>
-        /// <summary>Angle of the last gate, P(90° + β), reduced to [0°, 360°) (P is 360°-periodic).</summary>
-        public static double PreparationSecondPhase(double betaDeg) => ((90 + betaDeg) % 360 + 360) % 360;
-
-        /// <summary>The concrete circuit the demo will play for the current θ, φ inputs.</summary>
-        public string PreparationCircuitText =>
-            $"|0⟩ → H → P({InputTheta.ToString("0.##", Inv)}°) → H → P({PreparationSecondPhase(InputPhi).ToString("0.##", Inv)}°)";
-
-        /// <summary>The state the demo ends in (up to the global phase e^(jα/2)).</summary>
-        public string PreparationTargetText =>
-            $"Cél: θ = {InputTheta.ToString("0.##", Inv)}°, φ = {InputPhi.ToString("0.##", Inv)}°  →  " +
-            $"cos({(InputTheta / 2).ToString("0.##", Inv)}°)|0⟩ + e^(j·{InputPhi.ToString("0.##", Inv)}°)·sin({(InputTheta / 2).ToString("0.##", Inv)}°)|1⟩";
-
-        public async Task RunPreparationDemoAsync(int? stepDelayMs = null)
-        {
-            if (SelectedQubit == null || IsBusy) return;
-            IsBusy = true;
-            try
-            {
-                double alpha = InputTheta;
-                double beta = InputPhi;
-                double secondPhase = PreparationSecondPhase(beta);
-                int delay = stepDelayMs ?? (AnimationEnabled ? (int)(AnimationSeconds * 1000) + 250 : 300);
-
-                SelectedQubit.Restart(QuantumMath.GetStateVector(0, 0), $"Init(|0⟩) [cél: θ={alpha.ToString("0.#", Inv)}°, φ={beta.ToString("0.#", Inv)}°]");
-                InputHint = "";
-                LastMeasurementText = "";
-                SceneChanged?.Invoke(this, EventArgs.Empty);
-                if (delay > 0) await Task.Delay(delay);
-
-                var sequence = new[]
-                {
-                    QuantumMath.GetGate("H", 0),
-                    QuantumMath.GetGate("P", alpha),
-                    QuantumMath.GetGate("H", 0),
-                    QuantumMath.GetGate("P", secondPhase),
-                };
-                foreach (var gate in sequence)
-                {
-                    ApplyGateDefinition(gate);
-                    if (delay > 0) await Task.Delay(delay);
-                }
-            }
-            finally
-            {
-                IsBusy = false;
-            }
         }
 
         // ================= Shots / histogram =================

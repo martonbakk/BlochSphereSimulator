@@ -176,9 +176,7 @@ p("Az elkészült alkalmazás egy Windowsos asztali program, amely 3D-ben, egér
   "Z- és X-bázisban, egyszeri méréssel vagy sokszor ismételt méréssel és hisztogrammal. Legfeljebb hat független "
   "qubit lehet egyszerre a gömbön, mindegyik saját színnel és saját műveleti lánccal.")
 p("A program az előadásokon használt jelöléseket követi: a képzetes egységet j jelöli, a fázisforgató kapu "
-  "P(α), és az állapot alakja |ψ⟩ = cos(θ/2)|0⟩ + e^(jφ)·sin(θ/2)|1⟩. Az előadáson bemutatott „tetszőleges "
-  "kvantumbit előállítása alapkapukkal” áramkör (|0⟩ → H → P(α) → H → P(90°+β)) külön gombbal, lépésenként "
-  "lejátszható.")
+  "P(α), és az állapot alakja |ψ⟩ = cos(θ/2)|0⟩ + e^(jφ)·sin(θ/2)|1⟩.")
 
 # =====================================================================
 # 2. Running
@@ -280,15 +278,7 @@ p("A mátrixok megegyeznek az előadásfóliákon szereplőkkel. Például a fó
   "Z(a, b) = (a, −b) és P(α)(a, b) = (a, e^(jα)b); ezeket unit tesztek ellenőrzik. Az S és T kapuk a P(α) "
   "fáziskapu speciális esetei, a program felülete is így nevezi meg őket.")
 
-doc.add_heading("4.3 Tetszőleges állapot előállítása alapkapukkal", level=2)
-p("Az előadás szerint |0⟩-ból kiindulva a H → P(α) → H → P(90°+β) kapusorozat a következő állapotot adja:")
-formula("P(90°+β)·H·P(α)·H|0⟩ = e^(jα/2)·[cos(α/2)|0⟩ + e^(jβ)·sin(α/2)|1⟩]")
-p("Ez a globális fázistól eltekintve a (θ = α, φ = β) Bloch-pont. Ehhez az (1 + e^(jα))/2 = e^(jα/2)cos(α/2) és "
-  "j(1 − e^(jα))/2 = e^(jα/2)sin(α/2) azonosságokat használjuk. A program „Előállítás lépésenként” gombja ezt az "
-  "áramkört játssza le animálva: a cél a θ, φ csúszkákon beállított állapot. A lejátszás végén a vektor pontosan "
-  "a célállapotba kerül. Ezt automatikus teszt ellenőrzi 40 véletlen célállapotra, a globális fázissal együtt.")
-
-doc.add_heading("4.4 Mérés (3. posztulátum)", level=2)
+doc.add_heading("4.3 Mérés (3. posztulátum)", level=2)
 p("A program projektív (Neumann-) mérést valósít meg. Z-bázisban a mérési operátorok a P₀ = |0⟩⟨0| és "
   "P₁ = |1⟩⟨1| projektorok, amelyekre teljesül a teljességi reláció (P₀ + P₁ = I). Az m eredmény valószínűsége "
   "P(m) = ⟨ψ|Pₘ|ψ⟩, azaz P(0) = |α|² és P(1) = |β|². A mérés utáni állapot:")
@@ -338,11 +328,7 @@ bullet("Amíg a qubitre még nem hatott kapu, a csúszkák élőben mozgatják a
        "gombbal indítható.")
 bullet("Nevezetes állapotok gombjai: |0⟩, |1⟩, |+⟩, |−⟩, |+j⟩, |−j⟩. Egy kattintással beállítják a szögeket és "
        "újraindítják a qubitet a választott állapotból.")
-bullet("„Előállítás lépésenként”: az előadás áramköre (4.3 fejezet) animálva. Az áramkör nem rögzített: a "
-       "kapuk szögei a θ, φ beállításból számolódnak (α = θ, az utolsó kapu P(90° + φ), 360°-ra redukálva), és a panel "
-       "élőben kiírja a konkrét áramkört és a célállapotot, pl. θ = 60°, φ = 120° esetén "
-       "|0⟩ → H → P(60°) → H → P(210°). Lejátszás közben a többi gomb le van tiltva.")
-figure("02_preparation_demo.png", "2. ábra – Az előadás állapot-előállító áramköre (cél: θ = 60°, φ = 120°): a 0–4 sorszámú lépések és pályáik", 15.0)
+figure("02_typed_state.png", "2. ábra – Kezdőállapot számmal megadva (θ = 60°, φ = 120°), majd egy kapulánc a sorszámozott lépésekkel és pályákkal", 15.0)
 
 doc.add_heading("5.4 Kapuk alkalmazása és láncolása", level=2)
 p("A 2. csoport az alapkapukat (X, Y, Z, H), a 3. csoport a fáziskapukat és egyéb nevezetes kapukat (S, S†, T, "
@@ -408,8 +394,8 @@ table(
          "Igen, kétféleképpen: egy qubit teljes előzménye (minden korábbi állapot) és legfeljebb 6 független "
          "qubit egyszerre, eltérő színnel."],
         ["Tetszőleges kezdőállapot megadható?",
-         "Igen: θ, φ csúszkával vagy pontos számértékkel, 6 nevezetes állapot gombbal, valamint az előadás "
-         "állapot-előállító áramkörével."],
+         "Igen: θ, φ csúszkával vagy pontos számértékkel (tizedes értékkel is), valamint 6 nevezetes állapot "
+         "gombbal."],
     ],
     widths=[5.5, 10.9],
 )
@@ -436,14 +422,14 @@ table(
         ["Models/QubitTrack.cs", "Egy qubit: név, szín, lépések listája (QubitStep: típus, címke, állapot, Bloch-pont, "
                                  "pálya, tengely), visszavonás, újraindítás, láncszöveg."],
         ["ViewModels/MainViewModel.cs", "A felület állapota és parancsai: bemenetek, kapuk, mérés, hisztogram, qubitek "
-                                        "kezelése, állapot-előállító demó, élő kijelző szövegei; események a 3D nézet "
+                                        "kezelése, élő kijelző szövegei; események a 3D nézet "
                                         "újrarajzolásához és az animációhoz."],
         ["MainWindow.xaml", "A felület leírása (elrendezés, stílusok, adatkötések)."],
         ["MainWindow.xaml.cs", "A 3D jelenet: drótvázas gömb, tengelyek, feliratok, qubitnyilak, előzmények, pályák, "
                                "sorszámok; az animáció képkockánként (CompositionTarget.Rendering), ease-in-out "
                                "időzítéssel."],
         ["Commands/RelayCommand.cs", "Általános ICommand megvalósítás a gombokhoz."],
-        ["BlochSphereSimulator.Tests/", "38 unit teszt (QuantumMathTests, MainViewModelTests)."],
+        ["BlochSphereSimulator.Tests/", "35 unit teszt (QuantumMathTests, MainViewModelTests)."],
         ["tools/", "A dokumentáció és a képernyőképek reprodukálható előállítása (UI Automation szkript, DOCX generátor)."],
     ],
     widths=[5.0, 11.4],
@@ -462,19 +448,19 @@ p("Az új lépés bekerül a qubit előzményei közé, a nézet pedig végigvez
 # 8. Testing
 # =====================================================================
 doc.add_heading("8. Tesztelés és ellenőrzés", level=1)
-p("A megoldás 38 automatikus unit tesztet tartalmaz (dotnet test), mindegyik sikeresen lefut. Főbb csoportok:")
+p("A megoldás 35 automatikus unit tesztet tartalmaz (dotnet test), mindegyik sikeresen lefut. Főbb csoportok:")
 bullet("Kapuk: unitaritás mind a 13 kapura; H² = I, S = P(90°), T = P(45°), T² = S, S² = Z, SS† = TT† = I, "
        "√X² = X; a fóliákon szereplő Y, Z, P(α) hatás általános állapotra.", "Mátrixok – ")
 bullet("H|0⟩ = |+⟩ (+x), X|0⟩ = |1⟩ (−z), P(90°)|+⟩ = |+j⟩ (+y); a 6 nevezetes állapot Bloch-pontja; "
        "θ, φ ↔ állapot oda-vissza konverzió; globális fázis normálása.", "Állapotok – ")
 bullet("Az animációs pálya végpontja egyezik U|ψ⟩ Bloch-pontjával (13 kapu × 50 véletlen állapot és szög), és a pálya "
        "minden pontja a gömb felszínén van.", "Geometria – ")
-bullet("Az előadás állapot-előállító áramköre 40 véletlen célra pontosan a célállapotot adja, az e^(jα/2) "
-       "globális fázissal együtt; az interferométer-áramkör (H → P(Δα) → H) P(0) = cos²(Δα/2) statisztikát ad.", "Előadás-példák – ")
+bullet("Az előadás „tetszőleges állapot előállítása” levezetése (H → P(α) → H → P(90°+β)) 40 véletlen "
+       "szögpárra a várt állapotot adja, az e^(jα/2) globális fázissal együtt; az interferométer-áramkör (H → P(Δα) → H) P(0) = cos²(Δα/2) statisztikát ad.", "Előadás-példák – ")
 bullet("Z- és X-bázisú valószínűségek, összeomlás bázisállapotba, ismételt mérés ugyanazt adja, 100 000 mérés "
        "gyakorisága 1%-on belül egyezik az elméleti értékkel.", "Mérés – ")
 bullet("Kapulánc, visszavonás, lánc törlése, a csúszkák nem törlik a meglévő láncot, bemenetek korlátozása, "
-       "nevezetes állapotok, mérés, hisztogram, több független qubit, legfeljebb 6 qubit, a demó lefutása.",
+       "nevezetes állapotok, mérés, hisztogram, több független qubit, legfeljebb 6 qubit.",
        "Felületlogika (ViewModel) – ")
 p("A grafikus felületet kézzel is kipróbáltam, és a dokumentáció képernyőképeit egy Windows UI Automation "
   "szkript készítette, amely valódi gombnyomásokkal hajtja végig a programot (tools/shots_scenario.ps1). Az "
