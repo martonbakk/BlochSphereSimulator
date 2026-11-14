@@ -132,12 +132,13 @@ namespace BlochSphereSimulator
             MainViewport.Children.Add(new ArrowVisual3D { Point1 = new Point3D(0, -1.3, 0), Point2 = new Point3D(0, 1.3, 0), Diameter = 0.015, Fill = new SolidColorBrush(green) });
             MainViewport.Children.Add(new ArrowVisual3D { Point1 = new Point3D(0, 0, -1.3), Point2 = new Point3D(0, 0, 1.3), Diameter = 0.015, Fill = new SolidColorBrush(blue) });
 
-            AddStaticLabel("x  |+⟩", new Point3D(1.42, 0, 0), red, 17);
-            AddStaticLabel("|−⟩", new Point3D(-1.15, 0, 0), red, 14);
-            AddStaticLabel("y  |+j⟩", new Point3D(0, 1.48, 0), green, 17);
-            AddStaticLabel("|−j⟩", new Point3D(0, -1.18, 0), green, 14);
-            AddStaticLabel("z  |0⟩", new Point3D(0, 0, 1.42), blue, 17);
-            AddStaticLabel("|1⟩", new Point3D(0, 0, -1.16), blue, 15);
+            // Anchored at the ends of the axis lines (±1.3), placed just beyond them on screen.
+            AddStaticLabel("x  |+⟩", new Point3D(1.3, 0, 0), red, 17);
+            AddStaticLabel("|−⟩", new Point3D(-1.3, 0, 0), red, 15);
+            AddStaticLabel("y  |+j⟩", new Point3D(0, 1.3, 0), green, 17);
+            AddStaticLabel("|−j⟩", new Point3D(0, -1.3, 0), green, 15);
+            AddStaticLabel("z  |0⟩", new Point3D(0, 0, 1.3), blue, 17);
+            AddStaticLabel("|1⟩", new Point3D(0, 0, -1.3), blue, 15);
         }
 
         private static void AddCircle(Point3DCollection pts, double r, double z, int segments)
@@ -150,9 +151,10 @@ namespace BlochSphereSimulator
             }
         }
 
-        private void AddStaticLabel(string text, Point3D anchor, Color color, double size)
+        private void AddStaticLabel(string text, Point3D axisEnd, Color color, double size)
         {
-            var label = new OverlayLabel(anchor, false, CreateLabelBlock(text, color, size));
+            // 0.03: about the radius of the axis arrow head
+            var label = new OverlayLabel(axisEnd, 0.03, CreateLabelBlock(text, color, size));
             _staticLabels.Add(label);
             LabelCanvas.Children.Add(label.Block);
         }
@@ -294,7 +296,8 @@ namespace BlochSphereSimulator
 
         private void AddDynamicLabel(string text, Point3D tip, Color color, double size)
         {
-            var label = new OverlayLabel(tip, true, CreateLabelBlock(text, color, size));
+            // 0.045: radius of the sphere drawn on the current state's tip (history tips are thinner)
+            var label = new OverlayLabel(tip, 0.045, CreateLabelBlock(text, color, size));
             _dynamicLabels.Add(label);
             LabelCanvas.Children.Add(label.Block);
         }
@@ -306,13 +309,23 @@ namespace BlochSphereSimulator
         }
 
         /// <summary>
-        /// Projects every label anchor onto the screen. Tip labels are placed just beyond the arrow tip,
-        /// in the screen direction in which the arrow points, so they never cover the arrow head.
+        /// Projects every label anchor (an arrow or axis end) onto the screen and places the label just
+        /// beyond it, in the screen direction in which the arrow points:
+        ///  - gap = on-screen radius of the tip (sphere / arrow head) + a few pixels, so it stays tight at any zoom;
+        ///  - the label is pushed out by its own half-extent along that direction, so the nearest edge of the
+        ///    text (not its centre) sits at the gap - for any direction, including diagonals.
         /// </summary>
         private void PositionLabels()
         {
             var viewport = MainViewport.Viewport;
-            if (viewport?.Camera == null || LabelCanvas.ActualWidth <= 0) return;
+            if (viewport?.Camera is not ProjectionCamera camera || LabelCanvas.ActualWidth <= 0) return;
+
+            // A world-space vector perpendicular to the view direction, to measure on-screen sizes
+            var look = camera.LookDirection;
+            look.Normalize();
+            var screenUp = camera.UpDirection - look * Vector3D.DotProduct(camera.UpDirection, look);
+            if (screenUp.Length < 1e-9) screenUp = new Vector3D(0, 0, 1);
+            screenUp.Normalize();
 
             foreach (var label in _staticLabels.Concat(_dynamicLabels))
             {
@@ -322,29 +335,44 @@ namespace BlochSphereSimulator
 
                 block.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                 double w = block.DesiredSize.Width, h = block.DesiredSize.Height;
-                double cx = p.X, cy = p.Y;
 
-                if (label.OffsetFromTip)
+                // Direction of the arrow on screen at its end
+                var q = Viewport3DHelper.Point3DtoPoint2D(viewport, Scale(label.Anchor, 1.2));
+                var dir = IsFinite(q) ? new Vector(q.X - p.X, q.Y - p.Y) : new Vector();
+                if (dir.Length < 3) dir = new Vector(0.7071, -0.7071); // arrow points at the viewer: up-right
+                dir.Normalize();
+
+                // A state on a coordinate axis (|0⟩, |1⟩, |±⟩, |±j⟩) has the axis line running on beyond its tip,
+                // so a label straight ahead would sit on that line. Put it beside the tip instead
+                // (perpendicular on screen, preferring the upper / right side).
+                if (label.TipRadius > 0.04 && OnCoordinateAxis(label.Anchor))
                 {
-                    // Screen-space direction of the arrow at its tip
-                    var q = Viewport3DHelper.Point3DtoPoint2D(viewport, Scale(label.Anchor, 1.25));
-                    var dir = IsFinite(q) ? new Vector(q.X - p.X, q.Y - p.Y) : new Vector();
-                    if (dir.Length < 4) dir = new Vector(1, -1); // arrow points at the viewer: put the label up-right
-                    dir.Normalize();
-                    // Distance from the tip to the label centre: clear the tip sphere plus half the label
-                    // size measured along the direction (ellipse approximation of the text box).
-                    double half = Math.Sqrt(Math.Pow(dir.X * w / 2, 2) + Math.Pow(dir.Y * h / 2, 2));
-                    cx += dir.X * (9 + half);
-                    cy += dir.Y * (9 + half);
+                    var side = new Vector(-dir.Y, dir.X);
+                    if (side.Y > 0.2 || (Math.Abs(side.Y) <= 0.2 && side.X < 0)) side = -side;
+                    dir = side;
                 }
 
-                Canvas.SetLeft(block, cx - w / 2);
-                Canvas.SetTop(block, cy - h / 2);
+                // On-screen radius of the tip
+                var edge = Viewport3DHelper.Point3DtoPoint2D(viewport, label.Anchor + screenUp * label.TipRadius);
+                double tipRadius = IsFinite(edge) ? (edge - p).Length : 0;
+                double gap = tipRadius + 4;
+
+                // Distance from the anchor to the label centre so that the rectangle's nearest point is `gap` away:
+                // half-extent of a w x h rectangle along dir is |dx|*w/2 + |dy|*h/2.
+                double halfExtent = Math.Abs(dir.X) * w / 2 + Math.Abs(dir.Y) * h / 2;
+                double cx = p.X + dir.X * (gap + halfExtent);
+                double cy = p.Y + dir.Y * (gap + halfExtent);
+
+                Canvas.SetLeft(block, Math.Round(cx - w / 2));
+                Canvas.SetTop(block, Math.Round(cy - h / 2));
                 block.Visibility = Visibility.Visible;
             }
         }
 
         private static bool IsFinite(Point p) => double.IsFinite(p.X) && double.IsFinite(p.Y);
+
+        private static bool OnCoordinateAxis(Point3D p) =>
+            Math.Abs(Math.Abs(p.X) - 1) < 1e-6 || Math.Abs(Math.Abs(p.Y) - 1) < 1e-6 || Math.Abs(Math.Abs(p.Z) - 1) < 1e-6;
 
         // ===================== Animation =====================
 
@@ -424,6 +452,8 @@ namespace BlochSphereSimulator
         private static double Length(Point3D p) => Math.Sqrt(p.X * p.X + p.Y * p.Y + p.Z * p.Z);
         private static Point3D Scale(Point3D p, double s) => new(p.X * s, p.Y * s, p.Z * s);
 
-        private sealed record OverlayLabel(Point3D Anchor, bool OffsetFromTip, TextBlock Block);
+        /// <param name="Anchor">3D end point of the arrow or axis the label belongs to.</param>
+        /// <param name="TipRadius">World-space radius of what is drawn at the end (tip sphere / arrow head).</param>
+        private sealed record OverlayLabel(Point3D Anchor, double TipRadius, TextBlock Block);
     }
 }
