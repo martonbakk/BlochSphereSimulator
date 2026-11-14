@@ -1,6 +1,5 @@
 @echo off
-rem Builds the standalone, self-contained single-file Windows executable into .\dist
+rem Builds the standalone, self-contained, compressed single-file Windows executable into .\dist
 rem (no .NET runtime or development environment is needed on the target PC).
-dotnet publish BlochSphereSimulator\BlochSphereSimulator.csproj -c Release -r win-x64 --self-contained true ^
-  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true ^
-  -p:DebugType=none -o dist
+rem All publish settings live in BlochSphereSimulator\BlochSphereSimulator.csproj (Release + RuntimeIdentifier).
+dotnet publish BlochSphereSimulator\BlochSphereSimulator.csproj -c Release -r win-x64 -o dist

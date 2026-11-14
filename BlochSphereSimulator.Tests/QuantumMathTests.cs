@@ -149,6 +149,31 @@ namespace BlochSphereSimulator.Tests
         }
 
         [TestMethod]
+        public void Interferometer_FromLecture_GivesCosSquaredStatistics()
+        {
+            // H -> P(delta) -> H on |0>: P(0) = cos^2(delta/2) (interferometer lecture, shots=10000)
+            foreach (var delta in new[] { 0.0, 60.0, 90.0, 180.0, 270.0 })
+            {
+                var psi = QuantumMath.H() * QuantumMath.Phase(delta) * QuantumMath.H() * QuantumMath.GetStateVector(0, 0);
+                double expected = Math.Pow(Math.Cos(QuantumMath.DegToRad(delta) / 2), 2);
+                Assert.AreEqual(expected, QuantumMath.ProbabilitiesZ(psi).P0, 1e-12, $"delta={delta}");
+            }
+            var p60 = QuantumMath.H() * QuantumMath.Phase(60) * QuantumMath.H() * QuantumMath.GetStateVector(0, 0);
+            Assert.AreEqual(0.75, QuantumMath.ProbabilitiesZ(p60).P0, 1e-12);
+        }
+
+        [TestMethod]
+        public void Hadamard_OnBasisStates_AsOnSlides()
+        {
+            // H|0> = (|0>+|1>)/sqrt2, H|1> = (|0>-|1>)/sqrt2
+            var h0 = QuantumMath.H() * QuantumMath.GetStateVector(0, 0);
+            var h1 = QuantumMath.H() * QuantumMath.GetStateVector(180, 0);
+            double s = 1 / Math.Sqrt(2);
+            AssertComplexAreEqual(s, h0[0]); AssertComplexAreEqual(s, h0[1]);
+            AssertComplexAreEqual(s, h1[0]); AssertComplexAreEqual(-s, h1[1]);
+        }
+
+        [TestMethod]
         public void BlochAngles_RoundTrip()
         {
             var (t, p) = QuantumMath.GetBlochAngles(QuantumMath.GetStateVector(123.4, 291.7));

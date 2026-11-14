@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -6,11 +6,51 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <AssemblyTitle>Bloch-gömb szimulátor</AssemblyTitle>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="HelixToolkit.Wpf" Version="3.1.2" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+  </ItemGroup>
+
+  <!--
+    Standalone release build (used by publish.cmd): one self-contained, compressed .exe
+    that runs on Windows without installing .NET. Size measured on 2026-11-14:
+      self-contained single file ..................... 157 MB
+      + compression .................................. 69 MB
+      + only English framework resources .............. 64 MB
+      + partial trimming of the .NET base libraries ... see publish.cmd output
+    WPF does not officially support trimming, so the WPF assemblies and the libraries loaded
+    through XAML are kept whole (TrimmerRootAssembly); only the rest of the runtime is trimmed.
+  -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' And '$(RuntimeIdentifier)' != ''">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <_SuppressWpfTrimError>true</_SuppressWpfTrimError>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release' And '$(RuntimeIdentifier)' != ''">
+    <TrimmerRootAssembly Include="PresentationCore" />
+    <TrimmerRootAssembly Include="PresentationFramework" />
+    <TrimmerRootAssembly Include="PresentationFramework.Aero2" />
+    <TrimmerRootAssembly Include="WindowsBase" />
+    <TrimmerRootAssembly Include="System.Xaml" />
+    <TrimmerRootAssembly Include="UIAutomationProvider" />
+    <TrimmerRootAssembly Include="UIAutomationTypes" />
+    <TrimmerRootAssembly Include="HelixToolkit.Wpf" />
+    <TrimmerRootAssembly Include="HelixToolkit" />
+    <TrimmerRootAssembly Include="MathNet.Numerics" />
+    <TrimmerRootAssembly Include="BlochSphereSimulator" />
   </ItemGroup>
 
 </Project>

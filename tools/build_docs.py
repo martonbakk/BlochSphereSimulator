@@ -189,7 +189,7 @@ bullet("64 bites Windows 10 vagy Windows 11.")
 bullet("Nem kell hozzá telepíteni semmit: sem .NET futtatókörnyezetet, sem fejlesztőkörnyezetet. A .NET 8 "
        "futtatókörnyezet és minden felhasznált könyvtár bele van csomagolva a futtatható állományba "
        "(„self-contained, single-file” kiadás).")
-bullet("Kb. 70 MB szabad hely. Az első indításkor a program a beágyazott natív részeket egy ideiglenes mappába "
+bullet("Kb. 45 MB szabad hely (a .exe mérete 43 MB). Az első indításkor a program a beágyazott natív részeket egy ideiglenes mappába "
        "bontja ki, ezért az első indulás néhány másodpercig tarthat.")
 doc.add_heading("2.2 Indítás", level=2)
 numbered("Másold a BlochSphereSimulator.exe fájlt egy tetszőleges mappába (pl. az Asztalra).")
@@ -203,8 +203,12 @@ p("A forráskód fordításához .NET 8 SDK (vagy újabb) szükséges. A projekt
 code("dotnet build BlochSphereSimulator.sln\n"
      "dotnet test  BlochSphereSimulator.sln      (unit tesztek)\n"
      "publish.cmd                                (önálló .exe a dist\\ mappába)")
-p("A publish.cmd a következő parancsot futtatja: dotnet publish -c Release -r win-x64 --self-contained true "
-  "-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true.")
+p("A publish.cmd a dotnet publish -c Release -r win-x64 parancsot futtatja; a kiadás beállításai a projektfájlban "
+  "(BlochSphereSimulator.csproj) vannak. A futtatható állomány önálló (self-contained), egyetlen fájlból áll, "
+  "tömörített, csak az angol nyelvű keretrendszer-erőforrásokat tartalmazza, és a .NET alapkönyvtáraiból a "
+  "linker (trimming) eltávolítja a nem használt kódot. A WPF és a XAML-ből betöltött könyvtárak (HelixToolkit, "
+  "MathNet.Numerics) teljes egészükben megmaradnak, mert ezeket reflexióval használja a keretrendszer. Így a "
+  "méret 157 MB-ról 43 MB-ra csökkent, és a fájl elfér a Moodle 50 MB-os feltöltési korlátjában.")
 
 # =====================================================================
 # 3. Libraries
@@ -236,6 +240,9 @@ formula("|ψ⟩ = α|0⟩ + β|1⟩,    α, β ∈ ℂ,    |α|² + |β|² = 1")
 p("A globális fázis fizikailag nem mérhető, ezért α valósnak és nemnegatívnak választható. Így minden állapot "
   "két szöggel írható le, ahogy az előadáson is:")
 formula("|ψ⟩ = cos(θ/2)|0⟩ + e^(jφ)·sin(θ/2)|1⟩,    0 ≤ θ ≤ 180°,  0 ≤ φ < 360°")
+p("Az Összefonódás előadás ugyanezt az alakot α (poláris) és β (azimut) szögekkel írja fel, egy e^(jγ) globális "
+  "fázissal: |φ⟩ = e^(jγ)[cos(α/2)|0⟩ + e^(jβ)sin(α/2)|1⟩]. A program a Posztulátumok előadás θ, φ jelölését "
+  "használja a kezdőállapothoz, az α betűt pedig a fázis- és forgatókapuk szögéhez.")
 p("θ és φ a Bloch-gömb egy pontjának gömbi koordinátái. A program a következő képletekkel számolja a "
   "Bloch-vektort:")
 formula("x = 2·Re(α*β),    y = 2·Im(α*β),    z = |α|² − |β|²")
@@ -370,6 +377,15 @@ p("A „Kvantumbitek” csoportban az „+ Új qubit” gomb egy új, független
   "hat különböző állapotokra.")
 figure("06_multiple_qubits.png", "7. ábra – Három független qubit (q0, q1, q2) saját színnel, előzménnyel és pályával", 15.0)
 
+doc.add_heading("5.7 Példa: a kvantuminterferométer az előadásból", level=2)
+p("Az interferométeres előadás áramköre H → P(Δα) → H, majd mérés sok ismétléssel (shots=10000). A szimulátorban "
+  "így reprodukálható: „|0⟩” gomb, H, a szöget Δα-ra állítva P(α), ismét H, majd ismételt mérés 10000-rel "
+  "Z-bázisban. Az elmélet szerint H·P(Δα)·H|0⟩ = ((1+e^(jΔα))/2)|0⟩ + ((1−e^(jΔα))/2)|1⟩, tehát P(0) = cos²(Δα/2). "
+  "Δα = 0° esetén minden mérés 0, Δα = 180° esetén minden mérés 1, Δα = 60° esetén P(0) = 0,75. A gömbön jól "
+  "látszik a háttérben zajló folyamat: az első H az egyenlítőre viszi a vektort, P(Δα) az egyenlítő mentén "
+  "elforgatja, a második H pedig visszaforgatja, így a fáziskülönbségből valószínűségi különbség lesz "
+  "(interferencia).")
+
 # =====================================================================
 # 6. Requirements
 # =====================================================================
@@ -425,7 +441,7 @@ table(
                                "sorszámok; az animáció képkockánként (CompositionTarget.Rendering), ease-in-out "
                                "időzítéssel."],
         ["Commands/RelayCommand.cs", "Általános ICommand megvalósítás a gombokhoz."],
-        ["BlochSphereSimulator.Tests/", "34 unit teszt (QuantumMathTests, MainViewModelTests)."],
+        ["BlochSphereSimulator.Tests/", "36 unit teszt (QuantumMathTests, MainViewModelTests)."],
         ["tools/", "A dokumentáció és a képernyőképek reprodukálható előállítása (UI Automation szkript, DOCX generátor)."],
     ],
     widths=[5.0, 11.4],
@@ -444,7 +460,7 @@ p("Az új lépés bekerül a qubit előzményei közé, a nézet pedig végigvez
 # 8. Testing
 # =====================================================================
 doc.add_heading("8. Tesztelés és ellenőrzés", level=1)
-p("A megoldás 34 automatikus unit tesztet tartalmaz (dotnet test), mindegyik sikeresen lefut. Főbb csoportok:")
+p("A megoldás 36 automatikus unit tesztet tartalmaz (dotnet test), mindegyik sikeresen lefut. Főbb csoportok:")
 bullet("Kapuk: unitaritás mind a 13 kapura; H² = I, S = P(90°), T = P(45°), T² = S, S² = Z, SS† = TT† = I, "
        "√X² = X; a fóliákon szereplő Y, Z, P(α) hatás általános állapotra.", "Mátrixok – ")
 bullet("H|0⟩ = |+⟩ (+x), X|0⟩ = |1⟩ (−z), P(90°)|+⟩ = |+j⟩ (+y); a 6 nevezetes állapot Bloch-pontja; "
@@ -452,7 +468,7 @@ bullet("H|0⟩ = |+⟩ (+x), X|0⟩ = |1⟩ (−z), P(90°)|+⟩ = |+j⟩ (+y); 
 bullet("Az animációs pálya végpontja egyezik U|ψ⟩ Bloch-pontjával (13 kapu × 50 véletlen állapot és szög), és a pálya "
        "minden pontja a gömb felszínén van.", "Geometria – ")
 bullet("Az előadás állapot-előállító áramköre 40 véletlen célra pontosan a célállapotot adja, az e^(jα/2) "
-       "globális fázissal együtt.", "Állapot-előállítás – ")
+       "globális fázissal együtt; az interferométer-áramkör (H → P(Δα) → H) P(0) = cos²(Δα/2) statisztikát ad.", "Előadás-példák – ")
 bullet("Z- és X-bázisú valószínűségek, összeomlás bázisállapotba, ismételt mérés ugyanazt adja, 100 000 mérés "
        "gyakorisága 1%-on belül egyezik az elméleti értékkel.", "Mérés – ")
 bullet("Kapulánc, visszavonás, lánc törlése, a csúszkák nem törlik a meglévő láncot, bemenetek korlátozása, "

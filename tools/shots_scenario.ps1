@@ -2,6 +2,7 @@
 $ErrorActionPreference = "Stop"
 $img = Join-Path $PSScriptRoot "..\docs\img"
 if (-not $PSScriptRoot) { $img = "docs\img" }
+if ($env:SHOTS_DIR) { $img = $env:SHOTS_DIR }   # e.g. to smoke-test a published exe without touching the docs
 
 # 1) Start screen
 Save-Shot "$img\01_start.png"
